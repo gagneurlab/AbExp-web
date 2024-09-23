@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "abexp-web"
+version = "0.1.0"
+description = ""
+authors = ["George Tsitsiridis <gtsitsiridis@gmail.com>",
+    "Aleksandr Neverov <neverov.alxndr@gmail.com>",
+    "Florian Hölzlwimmer <git.ich@frhoelzlwimmer.de>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+flask = "^3.0.3"
+flask-talisman = "^1.1.0"
+flask-limiter = "^3.8.0"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

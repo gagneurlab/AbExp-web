@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>AbSplice web interface</title>
+    <link rel="icon" href="static/icon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="..." crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+
+    <style>
+
+        .suppl_button {
+            background-color: #7393B3;
+            color: white;
+            border-radius: 7px
+        }
+        .subm_button {
+            background-color: #3c97ff;
+            color: white;
+            border-radius: 7px;
+            padding: 10px;
+            width: 94%
+        }
+
+        .info-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            background-color: #f2f2f2;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .image-container {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+        }
+
+        .blur-background {
+            filter: blur(3px);
+        }
+
+        #snv_input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+    </style>
+    <script>
+        function toggleTissues() {
+            var tissuesDiv = document.getElementById("tissuesDiv");
+            tissuesDiv.style.display = (tissuesDiv.style.display == "none") ? "block" : "none";
+        }
+
+        function uncheckAll() {
+            var checkboxes = document.getElementsByName("tissue_checkbox");
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+
+        function checkAll() {
+            var checkboxes = document.getElementsByName("tissue_checkbox");
+            checkboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+        }
+
+        function checkAllBrainTissues() {
+            var brainTissueCheckboxes = document.querySelectorAll('input[name="tissue_checkbox"][value^="Brain"]');
+            brainTissueCheckboxes.forEach(function(checkbox) {
+                checkbox.checked = true;
+            });
+        }
+
+        function showInfo(column) {
+            var infoContent = document.getElementById('info-content-' + column);
+            infoContent.style.display = 'block';
+            document.getElementById('main_container').classList.add('blur-background');
+        }
+
+        function hideInfo(column) {
+            var infoContent = document.getElementById('info-content-' + column);
+            infoContent.style.display = 'none';
+            document.getElementById('main_container').classList.remove('blur-background');
+        }
+    </script>
+</head>
+<body>
+    <div id="info-content-max_score" class="info-content" style="display: none;">
+        <p>This option will display only the maximum score across tissues per variant. Recommended for faster prioritization of the input variants. Note: the full output with scores per tissue will still be available for download as a CSV file.</p>
+    </div>
+    <div id="info-content-extra_info" class="info-content" style="display: none;">
+        <p>This option will add extra information from SpliceMaps to the output, such as: reference PSI, scored junction, etc. The attached CSV file will contain the full AbSplice output with all columns available in the GitHub package output. Note: this option increases running time.</p>
+    </div>
+    <div class="container" style="margin-bottom: 50px" id="main_container">
+        <h1 class="text-center mt-5 mb-5">AbSplice web interface</h1>
+        <div class="row justify-content-around mt-4">
+            <div class="col-md-8">
+                <form action="/run_absplice" method="POST">
+                    <p class="text-mt-5"><label for="snv_input"><b>Enter variant(s):</b></label></p>
+                    <p>You can submit up to 10 variants at once, one per line, in one of the following formats (the <code>chr</code> prefix is optional, examples for hg38):</p>
+                    <pre>
+chr3:152269093:G>A
+chr8-140300616-T-G
+chr17 10631737 C GT
+                    </pre>
+                    {% with message = get_flashed_messages() %}
+                        {% if message %}
+                            <!-- <ul class="flashes">
+                                {% for message in messages %}
+                                    <li style="color: red">{{ message }}</li>
+                                {% endfor %}
+                            </ul> -->
+                            <p style="color: red">{{ message[0] }}</p>
+                        {% endif %}
+                    {% endwith %}
+                    <textarea id="snv_input" name="snv_input" rows="15" required></textarea>
+                    <p>Genome version:
+                    <label for="genome_hg19">
+                        <input type="radio" name="genome" id="genome_hg19" value="hg19" required>
+                        hg19
+                    </label>
+                    <label for="genome_hg38">
+                        <input type="radio" name="genome" id="genome_hg38" value="hg38" required>
+                        hg38
+                    </label>
+                    </p>
+                    <p>
+                        <button type="button" class="suppl_button" onclick="toggleTissues()">Advanced settings</button>
+                    </p>
+                    <div id="tissuesDiv" style="display: none;">
+                        <p>Add extra information <i class="fas fa-info-circle" onmouseover="showInfo('extra_info')" onmouseout="hideInfo('extra_info')"></i>:
+                            <label for="Yes">
+                                <input type="radio" name="extra_info" id="Yes_extra_info" value="Yes" required>
+                                    Yes
+                            </label>
+                            <label for="No">
+                                <input type="radio" name="extra_info" id="No_extra_info" value="No" required checked>
+                                    No
+                            </label>
+                        </p>
+                        <p>Display only the max score across tissues <i class="fas fa-info-circle" onmouseover="showInfo('max_score')" onmouseout="hideInfo('max_score')"></i>:
+                            <label for="Yes">
+                                <input type="radio" name="max_score" id="Yes_max_score" value="Yes" required>
+                                    Yes
+                            </label>
+                            <label for="No">
+                                <input type="radio" name="max_score" id="No_max_score" value="No" required checked>
+                                    No
+                            </label>
+                        </p>
+                        <p><b>Select tissues:</b></p>
+                        <button type="button" class="suppl_button" onclick="uncheckAll()">Uncheck all</button>
+                        <button type="button" class="suppl_button" onclick="checkAll()">Check all</button>
+                        <button type="button" class="suppl_button" onclick="checkAllBrainTissues()">Check all brain tissues</button><br>
+                        <div class="row justify-content-around">
+                            <div class="col-md-6">
+                        <label for="tissue1"><input type="checkbox" name="tissue_checkbox" id="tissue1" value="Adipose_Subcutaneous" checked> Adipose Subcutaneous</label><br>
+                        <label for="tissue2"><input type="checkbox" name="tissue_checkbox" id="tissue2" value="Adipose_Visceral_Omentum" checked> Adipose Visceral Omentum</label><br>
+                        <label for="tissue3"><input type="checkbox" name="tissue_checkbox" id="tissue3" value="Adrenal_Gland" checked> Adrenal Gland</label><br>
+                        <label for="tissue4"><input type="checkbox" name="tissue_checkbox" id="tissue4" value="Artery_Aorta" checked> Artery Aorta</label><br>
+                        <label for="tissue5"><input type="checkbox" name="tissue_checkbox" id="tissue5" value="Artery_Coronary" checked> Artery Coronary</label><br>
+                        <label for="tissue6"><input type="checkbox" name="tissue_checkbox" id="tissue6" value="Artery_Tibial" checked> Artery Tibial</label><br>
+                        <label for="tissue7"><input type="checkbox" name="tissue_checkbox" id="tissue7" value="Brain_Amygdala" checked> Brain Amygdala</label><br>
+                        <label for="tissue8"><input type="checkbox" name="tissue_checkbox" id="tissue8" value="Brain_Anterior_cingulate_cortex_BA24" checked> Brain Anterior cingulate cortex BA24</label><br>
+                        <label for="tissue9"><input type="checkbox" name="tissue_checkbox" id="tissue9" value="Brain_Caudate_basal_ganglia" checked> Brain Caudate basal ganglia</label><br>
+                        <label for="tissue10"><input type="checkbox" name="tissue_checkbox" id="tissue10" value="Brain_Cerebellar_Hemisphere" checked> Brain Cerebellar Hemisphere</label><br>
+                        <label for="tissue11"><input type="checkbox" name="tissue_checkbox" id="tissue11" value="Brain_Cerebellum" checked> Brain Cerebellum</label><br>
+                        <label for="tissue12"><input type="checkbox" name="tissue_checkbox" id="tissue12" value="Brain_Cortex" checked> Brain Cortex</label><br>
+                        <label for="tissue13"><input type="checkbox" name="tissue_checkbox" id="tissue13" value="Brain_Frontal_Cortex_BA9" checked> Brain Frontal Cortex BA9</label><br>
+                        <label for="tissue14"><input type="checkbox" name="tissue_checkbox" id="tissue14" value="Brain_Hippocampus" checked> Brain Hippocampus</label><br>
+                        <label for="tissue15"><input type="checkbox" name="tissue_checkbox" id="tissue15" value="Brain_Hypothalamus" checked> Brain Hypothalamus</label><br>
+                        <label for="tissue16"><input type="checkbox" name="tissue_checkbox" id="tissue16" value="Brain_Nucleus_accumbens_basal_ganglia" checked> Brain Nucleus accumbens basal ganglia</label><br>
+                        <label for="tissue17"><input type="checkbox" name="tissue_checkbox" id="tissue17" value="Brain_Putamen_basal_ganglia" checked> Brain Putamen basal ganglia</label><br>
+                        <label for="tissue18"><input type="checkbox" name="tissue_checkbox" id="tissue18" value="Brain_Spinal_cord_cervical_c_1" checked> Brain Spinal cord cervical c 1</label><br>
+                        <label for="tissue19"><input type="checkbox" name="tissue_checkbox" id="tissue19" value="Brain_Substantia_nigra" checked> Brain Substantia nigra</label><br>
+                        <label for="tissue20"><input type="checkbox" name="tissue_checkbox" id="tissue20" value="Breast_Mammary_Tissue" checked> Breast Mammary Tissue</label><br>
+                        <label for="tissue21"><input type="checkbox" name="tissue_checkbox" id="tissue21" value="Cells_Cultured_fibroblasts" checked> Cells Cultured fibroblasts</label><br>
+                        <label for="tissue22"><input type="checkbox" name="tissue_checkbox" id="tissue22" value="Cells_EBV_transformed_lymphocytes" checked> Cells EBV transformed lymphocytes</label><br>
+                        <label for="tissue23"><input type="checkbox" name="tissue_checkbox" id="tissue23" value="Colon_Sigmoid" checked> Colon Sigmoid</label><br>
+                        <label for="tissue24"><input type="checkbox" name="tissue_checkbox" id="tissue24" value="Colon_Transverse" checked> Colon Transverse</label><br>
+                        <label for="tissue25"><input type="checkbox" name="tissue_checkbox" id="tissue25" value="Esophagus_Gastroesophageal_Junction" checked> Esophagus Gastroesophageal Junction</label><br>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="tissue26"><input type="checkbox" name="tissue_checkbox" id="tissue26" value="Esophagus_Mucosa" checked> Esophagus Mucosa</label><br>
+                        <label for="tissue27"><input type="checkbox" name="tissue_checkbox" id="tissue27" value="Esophagus_Muscularis" checked> Esophagus Muscularis</label><br>
+                        <label for="tissue28"><input type="checkbox" name="tissue_checkbox" id="tissue28" value="Heart_Atrial_Appendage" checked> Heart Atrial Appendage</label><br>
+                        <label for="tissue29"><input type="checkbox" name="tissue_checkbox" id="tissue29" value="Heart_Left_Ventricle" checked> Heart Left Ventricle</label><br>
+                        <label for="tissue30"><input type="checkbox" name="tissue_checkbox" id="tissue30" value="Kidney_Cortex" checked> Kidney Cortex</label><br>
+                        <label for="tissue31"><input type="checkbox" name="tissue_checkbox" id="tissue31" value="Liver" checked> Liver</label><br>
+                        <label for="tissue32"><input type="checkbox" name="tissue_checkbox" id="tissue32" value="Lung" checked> Lung</label><br>
+                        <label for="tissue33"><input type="checkbox" name="tissue_checkbox" id="tissue33" value="Minor_Salivary_Gland" checked> Minor Salivary Gland</label><br>
+                        <label for="tissue34"><input type="checkbox" name="tissue_checkbox" id="tissue34" value="Muscle_Skeletal" checked> Muscle Skeletal</label><br>
+                        <label for="tissue35"><input type="checkbox" name="tissue_checkbox" id="tissue35" value="Nerve_Tibial" checked> Nerve Tibial</label><br>
+                        <label for="tissue36"><input type="checkbox" name="tissue_checkbox" id="tissue36" value="Ovary" checked> Ovary</label><br>
+                        <label for="tissue37"><input type="checkbox" name="tissue_checkbox" id="tissue37" value="Pancreas" checked> Pancreas</label><br>
+                        <label for="tissue38"><input type="checkbox" name="tissue_checkbox" id="tissue38" value="Pituitary" checked> Pituitary</label><br>
+                        <label for="tissue39"><input type="checkbox" name="tissue_checkbox" id="tissue39" value="Prostate" checked> Prostate</label><br>
+                        <label for="tissue40"><input type="checkbox" name="tissue_checkbox" id="tissue40" value="Skin_Not_Sun_Exposed_Suprapubic" checked> Skin Not Sun Exposed Suprapubic</label><br>
+                        <label for="tissue41"><input type="checkbox" name="tissue_checkbox" id="tissue41" value="Skin_Sun_Exposed_Lower_leg" checked> Skin Sun Exposed Lower leg</label><br>
+                        <label for="tissue42"><input type="checkbox" name="tissue_checkbox" id="tissue42" value="Small_Intestine_Terminal_Ileum" checked> Small Intestine Terminal Ileum</label><br>
+                        <label for="tissue43"><input type="checkbox" name="tissue_checkbox" id="tissue43" value="Spleen" checked> Spleen</label><br>
+                        <label for="tissue44"><input type="checkbox" name="tissue_checkbox" id="tissue44" value="Stomach" checked> Stomach</label><br>
+                        <label for="tissue45"><input type="checkbox" name="tissue_checkbox" id="tissue45" value="Testis" checked> Testis</label><br>
+                        <label for="tissue46"><input type="checkbox" name="tissue_checkbox" id="tissue46" value="Thyroid" checked> Thyroid</label><br>
+                        <label for="tissue47"><input type="checkbox" name="tissue_checkbox" id="tissue47" value="Uterus" checked> Uterus</label><br>
+                        <label for="tissue48"><input type="checkbox" name="tissue_checkbox" id="tissue48" value="Vagina" checked> Vagina</label><br>
+                        <label for="tissue49"><input type="checkbox" name="tissue_checkbox" id="tissue49" value="Whole_Blood" checked> Whole Blood</label><br>
+                    </div>
+                    </div>
+                    </div>
+                    <input type="submit" value="Run AbSplice" class="subm_button">
+                </form>
+            </div>
+            <div class="col-md-4">
+                <div class="row justify-content-around">
+                    <div class="col-md-6">
+                        <div class="image-container">
+                            <a href="https://www.cs.cit.tum.de/cmm/home/" target="_blank"><img src="{{ url_for('static', filename='GL_logo.png') }}" alt="Gagneur Lab logo"></a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="image-container">
+                            <a href="https://www.ghga.de" target="_blank"><img src="{{ url_for('static', filename='GHGA_logo.png') }}" alt="GHGA project logo"></a>
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    This website provides an interface for running AbSplice on arbitrary variants. AbSplice is a method that predicts aberrant splicing across human tissues (<a href="https://doi.org/10.1038/s41588-023-01373-3" target="_blank">Wagner, Çelik et al., Nature Genetics 2023</a>) 
+                    based on enhanced tissue-specific splice site annotations (<a href="https://github.com/gagneurlab/splicemap" target="_blank">SpliceMaps</a>). The scores represent the probability that a given variant causes aberrant splicing in a given tissue.
+                </p>
+                <p>
+                    Please also check our <a href="https://github.com/gagneurlab/absplice" target="_blank">GitHub repository</a>. Do not hesitate to ask questions and report any bugs in the <a href="https://github.com/gagneurlab/absplice/issues" target="_blank">Issues</a> section on GitHub.
+                </p>
+                <p>
+                    Precomputed AbSplice-DNA scores for all possible single-nucleotide variants genome-wide are available <a href="https://doi.org/10.5281/zenodo.6408331" target="_blank">here</a> (hg38) and <a href="https://zenodo.org/doi/10.5281/zenodo.10776852" target="_blank">here</a> (hg19) for download.
+                </p>
+                <p>
+                    <i>The web interface was developed by Aleksandr Neverov under the supervision of Nils Wagner, Dr. Christian Mertes, Dr. Vicente Yepez and Prof. Dr. Julien Gagneur at <a href="https://github.com/gagneurlab" target="_blank">Gagneur Lab</a></i>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

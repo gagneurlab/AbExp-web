@@ -1,0 +1,68 @@
+def parse_variant(variant):
+    if len(variant.split(':')) == 3:
+        parts = variant.split(':')
+        ref, alt = parts[2].split('&gt;')
+    elif len(variant.split('-')) == 4:
+        parts = variant.split('-')
+        ref = parts[2]
+        alt = parts[3]
+    elif len(variant.split()) == 4:
+        parts = variant.split()
+        ref = parts[2]
+        alt = parts[3]
+    else:
+        error_message = "Invalid SNV input format. Expected format: 'chromosome:position:ref>alt' or 'chromosome-position-ref-alt' or 'chromosome position ref alt'."
+        raise ValueError(error_message)
+
+    ref = ref.upper()
+    alt = alt.upper()
+
+    chromosome = parts[0]
+
+    if not chromosome.startswith('chr'):
+        chromosome = 'chr' + chromosome
+
+    position = int(parts[1])
+
+    # Validate the input
+
+    if chromosome[3:] not in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
+                              '17', '18', '19', '20', '21', '22', 'X', 'Y', 'MT']:
+        error_message = f"{chromosome} is not a valid chromosome name"
+        raise ValueError(error_message)
+
+    if position < 0 or position > 248956422:
+        error_message = f"{position} is not a valid position"
+        raise ValueError(error_message)
+
+    for c in ref:
+        if c not in ['A', 'T', 'G', 'C', '.']:
+            error_message = f"{c} is not a valid nucletotide"
+            raise ValueError(error_message)
+
+    for c in alt:
+        if c not in ['A', 'T', 'G', 'C', '.']:
+            error_message = f"{c} is not a valid nucletotide"
+            raise ValueError(error_message)
+
+    return f"{chromosome}:{position}:{ref}>{alt}"
+
+
+def parse_input(snv_input):
+    # Check that all characters in the input are letters, numbers or allowed special symbols
+    check_input = "".join(snv_input.split())
+    for symb in [':', '&gt;', '-']:
+        check_input = check_input.replace(symb, '')
+    if not check_input.isalnum():
+        error_message = "Invalid characters in the input."
+        raise ValueError(error_message)
+
+    max_count = 10
+    split_input = snv_input.strip().split('\n')
+    if len(split_input) > max_count:
+        error_message = f"The input must not contain more than {max_count} variants."
+        raise ValueError(error_message)
+    proc_input = set()
+    for variant in split_input:
+        proc_input.add(parse_variant(variant.strip()))
+    return list(proc_input)
