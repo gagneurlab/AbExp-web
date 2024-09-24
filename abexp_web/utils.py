@@ -66,3 +66,33 @@ def parse_input(snv_input):
     for variant in split_input:
         proc_input.add(parse_variant(variant.strip()))
     return list(proc_input)
+
+
+def split_variant(variant):
+    chrom, pos, ref_alt = variant.split(':')
+    ref, alt = ref_alt.split('>')
+    pos = int(pos)
+
+    if chrom.startswith('chr'):
+        chrom = chrom[3:]
+
+    return chrom, pos, ref, alt
+
+
+def get_ensembl_gene_id(chrom, pos, gtf):
+    genes = gtf.region((chrom, pos - 1, pos), featuretype="gene")
+    # genes_pos, genes_neg = [], []
+    gene_ids = []
+
+    for gene in genes:
+        if gene[3] > pos or gene[4] < pos:
+            continue
+        gene_ids.append(gene["gene_id"][0].split('.')[0])
+
+    return gene_ids
+    # if gene[6] == '+':
+    #     genes_pos.append(gene_id)
+    # elif gene[6] == '-':
+    #     genes_neg.append(gene_id)
+
+    # return genes_pos, genes_neg

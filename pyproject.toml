@@ -13,7 +13,13 @@ flask = "^3.0.3"
 flask-talisman = "^1.1.0"
 flask-limiter = "^3.8.0"
 python-dotenv = "^1.0.1"
+pandas = "^2.0.3"
+duckdb = "^1.1.1"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-dotenv = "^0.5.2"
 
 [build-system]
 requires = ["poetry-core"]
