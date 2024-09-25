@@ -1,46 +1,45 @@
 from . import utils
 import pandas as pd
+import duckdb
 from .db import get_db
+
 
 # GENE_MAP = pd.read_csv('data/resources/gene_map.tsv', sep='\t')
 
 
-def run_abexp(snv_input, max_score_only, tissues, extra_info):
-    path_to_prec = f'data/resources/precomputed/absplice/{genome}/multisample/'
-
-    variants_to_run = []
-    df_list = []
-
-    # todo
-    gtf = gffutils.FeatureDB('data/resources/gencode.hg19.annotation.db')
-
-    # run the tool or retrieve precomputed scores for each variant in the input
+def run_abexp(snv_input, tissues, genome, max_score_only):
+    db = get_db()
+    variants = []
     for snv in snv_input:
-
         chr_name, pos, ref, alt = utils.split_variant(snv)
+        variants.append(f"{chr_name}:{pos}:{ref}>{alt}")
 
-        if len(alt) > 1 or extra_info:
-            variants_to_run.append(snv)
-        else:
-            gene_ids = utils.get_ensembl_gene_id(f"chr{chr_name}", pos, gtf)
+    df = db.execute(f"""
+    SELECT * FROM (
+        SELECT * FROM abexp 
+        WHERE genome = '{genome}' AND 
+            variant IN ({','.join([f"'{v}'" for v in variants])}) AND 
+            tissue IN ({','.join([f"'{t}'" for t in tissues])})
+    ) a LEFT JOIN gene_map ON a.gene = gene_map.gene;
+    """).fetchdf()
 
-            result = []
+    if df.shape[0] != 0:
+        if max_score_only:
+            df = df.assign(abs_abexp_score=df['abexp_score'].abs())
+            max_values = df.groupby(['variant', 'gene'])['abs_abexp_score'].max().reset_index()
+            df_max = pd.merge(df, max_values, on=['variant', 'gene', 'abs_abexp_score'], how='inner').drop_duplicates(
+                subset=['variant', 'gene'])
+            df_max['tissue'] = 'Max score over tissues'
+            del df_max['abs_abexp_score']
+            df = df_max
 
-            for gene_id in gene_ids:
-                # todo
-                res = get_precomputed_scores_from_vcf(chr_name, pos, ref, alt, gene_id, tissues, path_to_prec)
+    expected_order = ['variant', 'gene', 'gene_name', 'tissue', 'abexp_score']
+    df = df.round(5).sort_values(by=['variant', 'abexp_score'], ascending=[True, True])[expected_order]
 
-                if res.shape[0] == 0:
-                    continue
-                result.append(res)
-            df_list += result
+    return df
 
-    df_final = pd.concat(df_list).round(2).sort_values(by=['variant', 'AbSplice_DNA'], ascending=[True, False])
-    del df_list
 
-    # prepare output for html rendering
-    expected_order = ['variant', 'gene_id', 'AbSplice_DNA', 'tissue', 'delta_psi', 'delta_score']
-    df_final = df_final[expected_order]
-
-    # todo Add gene names to the output
-    return df_final
+def get_tissues():
+    db = get_db()
+    tissues = db.execute("SELECT tissue FROM tissues").fetchall()
+    return [tissue[0] for tissue in tissues]

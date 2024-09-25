@@ -15,4 +15,5 @@ build/
 
 .env*
 data/
+download/
 *.duckdb

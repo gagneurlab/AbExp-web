@@ -3,28 +3,39 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>AbSplice output</title>
+    <title>AbExp output</title>
     <link rel="icon" href="static/icon.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="..." crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-	<script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.7.0.js"></script>
-	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="..." crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.2/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
-	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
-	<style type="text/css" class="init">
-	
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
+    <style type="text/css" class="init">
+
         thead input {
             width: 100%;
         }
 
-	</style>
-	<script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
-	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
-	<script type="text/javascript" class="init">
+    </style>
+    <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript"
+            src="https://cdn.datatables.net/fixedheader/3.2.3/js/dataTables.fixedHeader.min.js"></script>
+    <script type="text/javascript" class="init">
 
         $(document).ready(function () {
             $('#result-table thead tr')
@@ -87,7 +98,7 @@
             });
         });
 
-	</script>
+    </script>
     <script>
         function showInfo(column) {
             var infoContent = document.getElementById('info-content-' + column);
@@ -106,18 +117,19 @@
             background-color: #7393B3;
             color: white;
         }
+
         .light-red {
             background-color: #FFC3B7;
         }
-    
+
         .light-orange {
             background-color: #FFEBC9;
         }
-    
+
         .light-yellow {
             background-color: lightyellow;
         }
-    
+
         .light-green {
             background-color: #D7FFC7;
         }
@@ -129,18 +141,20 @@
         body {
             font-size: 15px;
         }
+
         table {
             border-collapse: collapse;
             table-layout: auto;
             width: 100%;
             background-color: #dee6ff;
         }
+
         th, td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
         }
-        
+
         th {
             background-color: #f2f2f2;
         }
@@ -160,235 +174,191 @@
     </style>
 </head>
 <body>
-        <div id="info-content-AbSplice" class="info-content" style="display: none;">
-            <p>The AbSplice score is a probability estimate of how likely aberrant splicing of some sort takes place in a given tissue and reports the splice site with the strongest effect. To ease downstream applications we suggest three cutoffs (high: 0.2, medium: 0.05, low: 0.01), which approximately have the same recalls as the high, medium and low cutoffs of SpliceAI.</p>
+<div id="info-content-AbExp" class="info-content" style="display: none;">
+    <p>The AbSplice score is a probability estimate of how likely aberrant splicing of some sort takes place in a given
+        tissue and reports the splice site with the strongest effect. To ease downstream applications we suggest three
+        cutoffs (high: 0.2, medium: 0.05, low: 0.01), which approximately have the same recalls as the high, medium and
+        low cutoffs of SpliceAI.</p>
+</div>
+<div id="info-content-Tissue" class="info-content" style="display: none;">
+    <p>Name of the tissue that was used from SpliceMap.</p>
+</div>
+<div class="container-fluid" id="main_container">
+    <div class="container-fluid">
+        <h1 class="text-center mt-5 mb-5">AbExp output</h1>
+        <p>On this page you can see the AbSplice output for your variant(s). Use filter options to display results for
+            only those tissues, genes or variants that you want to view. Use filter for AbSplice score column to show
+            only those scores that are higher than the chosen cutoff.</p>
+        <p>The output table contains the following columns with hyperlinks:
+        <ul>
+            <li>Variant: Link to the UCSC browser</li>
+            <li>Gene ID: Link to Ensembl gene description</li>
+        </ul>
+        </p>
+        <div style="display: flex; justify-content: space-between;">
+            <button class="btn btn-primary mb-3 " style="background-color: #CCE8FF;"><a href="{{ url_for('index') }}">Back
+                to the input page</a></button>
+            <button class="btn btn-primary mb-3 " style="background-color: #CCE8FF;"><a
+                    href="data:text/csv;charset=utf-8,{{ csv_output | urlencode }}" download="abexp_ouput.csv">Download
+                the output as CSV</a></button>
         </div>
-        <div id="info-content-delta_score" class="info-content" style="display: none;">
-            <p>Input feature to AbSplice. The main score predicted by SpliceAI, computed as a maximum of acceptor gain, acceptor loss, donor gain, and donor loss delta scores. The score represents probability of the variant being splice-altering.</p>
-        </div>
-        <div id="info-content-Tissue" class="info-content" style="display: none;">
-            <p>Name of the tissue that was used from SpliceMap.</p>
-        </div>
-        <div id="info-content-expressed" class="info-content" style="display: none;">
-            <p>Input feature to AbSplice. Binary feature indicating if the splice site is expressed in the target tissue using a cutoff of 10 split reads (<code>median_n</code> from SpliceMap).</p>
-        </div>
-        <div id="info-content-delta_logit_psi" class="info-content" style="display: none;">
-            <p>Input feature to AbSplice. The score is computed by using SpliceMap as an annotation for MMSplice. The score shows the effect of the variant on the inclusion level (PSI - percent spliced in) of the junction. The score is on a logit scale. If the score is positive, it shows that variant leads higher inclusion rate for the junction. If the score is negative, it shows that variant leads higher exclusion rate for the junction.</p>
-        </div>
-        <div id="info-content-delta_psi" class="info-content" style="display: none;">
-            <p>Input feature to AbSplice. The delta_psi (∆Ψ) score is computed by converting delta_logit_psi (∆𝑙𝑜𝑔𝑖𝑡(Ψ)) to natural scale with the splicing scaling law and ref_psi (Ψ𝑟𝑒𝑓):</p>
-            <p>∆Ψ = σ(∆𝑙𝑜𝑔𝑖𝑡(Ψ) + 𝑙𝑜𝑔𝑖𝑡(Ψ𝑟𝑒𝑓)) − Ψ𝑟𝑒𝑓</p>
-        </div>
-    <div class="container-fluid" id="main_container">
-        <div class="container-fluid">
-            <h1 class="text-center mt-5 mb-5">AbSplice output</h1>
-            <p>On this page you can see the AbSplice output for your variant(s). Use filter options to display results for only those tissues, genes or variants that you want to view. Use filter for AbSplice score column to show only those scores that are higher than the chosen cutoff.</p>
-            <p>The output table contains the following columns with hyperlinks:
-                <ul>
-                    <li>Variant: Link to the UCSC browser</li>
-                    <li>Gene ID: Link to Ensembl gene description</li>
-                </ul>
-            </p>
-            <div style="display: flex; justify-content: space-between;">
-                <button class="btn btn-primary mb-3 " style="background-color: #CCE8FF;"><a href="{{ url_for('index') }}">Back to the input page</a></button>
-                <button class="btn btn-primary mb-3 " style="background-color: #CCE8FF;"><a href="data:text/csv;charset=utf-8,{{ csv_output | urlencode }}" download="AbSplice_ouput.csv">Download the output as CSV</a></button>
-            </div>
-            <table id="result-table" class="table">
-                <thead>
-                    <tr>
-                        <th class="align-top">Variant
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button" id="column1-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="">
-                                    Filter
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="column1-dropdown" style="overflow-y: auto; max-height: 300px">
-                                    <a class="dropdown-item" href="#" onclick="filterColumn('column1', '')">All</a>
-                                    {% for value in unique_column1_values %}
-                                        <a class="dropdown-item" href="#" onclick="filterColumn('column1', '{{ value }}')">{{ value }}</a>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </th>
-                        <th class="align-top">Gene ID
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button" id="column2-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Filter
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="column2-dropdown" style="overflow-y: auto; max-height: 300px">
-                                    <a class="dropdown-item" href="#" onclick="filterColumn('column2', '')">All</a>
-                                    {% for value in unique_column2_values %}
-                                        <a class="dropdown-item" href="#" onclick="filterColumn('column2', '{{ value }}')">{{ value }}</a>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </th>
-                        <th class="align-top">Gene name
-                        </th>
-                        <th class="align-top">Tissue <i class="fas fa-info-circle" onmouseover="showInfo('Tissue')" onmouseout="hideInfo('Tissue')"></i>
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button" id="column3-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Filter
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="column3-dropdown" style="overflow-y: auto; max-height: 300px">
-                                    <a class="dropdown-item" href="#" onclick="filterColumn('column3', '')">All</a>
-                                    {% for value in unique_column4_values %}
-                                    <a class="dropdown-item" href="#" onclick="filterColumn('column3', '{{ value }}')">{{ value }}</a>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </th>
-                        <th class="align-top">AbSplice score <i class="fas fa-info-circle" onmouseover="showInfo('AbSplice')" onmouseout="hideInfo('AbSplice')"></i>
-                            <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button" id="column4-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Cutoff
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="column4-dropdown">
-                                    <a class="dropdown-item" href="#" onclick="filterAbSpliceDNA('all')">All</a>
-                                    <a class="dropdown-item" href="#" onclick="filterAbSpliceDNA('high')">High (> 0.2)</a>
-                                    <a class="dropdown-item" href="#" onclick="filterAbSpliceDNA('medium')">Medium (> 0.05)</a>
-                                    <a class="dropdown-item" href="#" onclick="filterAbSpliceDNA('low')">Low (> 0.01)</a>
-                                </div>
-                            </div>
-                        </th>                
-                        <th class="align-top">Delta PSI <i class="fas fa-info-circle" onmouseover="showInfo('delta_psi')" onmouseout="hideInfo('delta_psi')"></i>
-                        </th>
-                        <th class="align-top">Delta score <i class="fas fa-info-circle" onmouseover="showInfo('delta_score')" onmouseout="hideInfo('delta_score')"></i>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in output %}
-                    <tr data-column1="{{ row[0] }}" data-column2="{{ row[1] }}" data-column4="{{ row[3] }}">
-                        <td data-column="column1"><a href="#" onclick="generateLink('{{ row[0] }}', '{{ genome }}')">{{ row[0] }}</a></td>
-                        <td data-column="column2"><a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={{ row[1] }}" target="_blank">{{ row[1] }}</a></td>
-                        <td data-column="column_gene_name">
-                            {{ row[6]|join(', ') }}
-                        </td>
-                        <td data-column="column3">{{ row[3] }}</td>
-                        <td data-column="column4" class="{% if row[2]|float > 0.2 %}light-red{% elif row[2]|float > 0.05 %}light-orange{% elif row[2]|float > 0.01 %}light-yellow{% else %}light-green{% endif %}">{{ row[2] | float }}</td>
-                        <td data-column="column5">{{ row[4] | float }}</td>
-                        <td data-column="column6">{{ row[5] | float }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <button class="btn btn-primary mb-3 " style="background-color: #3c97ff;" onclick="resetFilters()">Reset Filters</button>
-        </div> 
+        <table id="result-table" class="table">
+            <thead>
+            <tr>
+                <th class="align-top">Variant
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button"
+                                id="column1-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                style="">
+                            Filter
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="column1-dropdown"
+                             style="overflow-y: auto; max-height: 300px">
+                            <a class="dropdown-item" href="#" onclick="filterColumn('column1', '')">All</a>
+                            {% for value in unique_column1_values %}
+                                <a class="dropdown-item" href="#"
+                                   onclick="filterColumn('column1', '{{ value }}')">{{ value }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </th>
+                <th class="align-top">Gene ID
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button"
+                                id="column2-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Filter
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="column2-dropdown"
+                             style="overflow-y: auto; max-height: 300px">
+                            <a class="dropdown-item" href="#" onclick="filterColumn('column2', '')">All</a>
+                            {% for value in unique_column2_values %}
+                                <a class="dropdown-item" href="#"
+                                   onclick="filterColumn('column2', '{{ value }}')">{{ value }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </th>
+                <th class="align-top">Gene name
+                </th>
+                <th class="align-top">Tissue <i class="fas fa-info-circle" onmouseover="showInfo('Tissue')"
+                                                onmouseout="hideInfo('Tissue')"></i>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button"
+                                id="column3-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Filter
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="column3-dropdown"
+                             style="overflow-y: auto; max-height: 300px">
+                            <a class="dropdown-item" href="#" onclick="filterColumn('column4', '')">All</a>
+                            {% for value in unique_column4_values %}
+                                <a class="dropdown-item" href="#"
+                                   onclick="filterColumn('column3', '{{ value }}')">{{ value }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </th>
+                <th class="align-top">AbExp score <i class="fas fa-info-circle" onmouseover="showInfo('AbExp')"
+                                                     onmouseout="hideInfo('AbExp')"></i>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in output %}
+                <tr data-column1="{{ row[0] }}" data-column2="{{ row[1] }}" data-column4="{{ row[3] }}">
+                    <td data-column="column1"><a href="#"
+                                                 onclick="generateLink('{{ row[0] }}', '{{ genome }}')">{{ row[0] }}</a>
+                    </td>
+                    <td data-column="column2"><a
+                            href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={{ row[1] }}"
+                            target="_blank">{{ row[1] }}</a></td>
+                    <td data-column="column3">{{ row[2] }}</td>
+                    <td data-column="column4">{{ row[3] }}</td>
+                    <td data-column="column5">{{ row[4] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <button id="reset-filters-btn" class="btn btn-primary mb-3 " style="background-color: #3c97ff;"
+                onclick="resetFilters()">
+            Reset Filters
+        </button>
+    </div>
 
-        <script>
-            var filterStates = {
-                column1: '',
-                column2: '',
-                column3: '',
-                column4: '',
-                column5: '',
-                column6: '',
-                column_gene_name: '',
-            };
+    <script>
+        var filterStates = {
+            column1: '',
+            column2: '',
+            column3: '',
+            column4: '',
+            column5: '',
+        };
 
-            function filterRows() {
-                var rows = document.querySelectorAll('#result-table tbody tr');
+        function filterRows() {
+            var rows = document.querySelectorAll('#result-table tbody tr');
 
-                rows.forEach(function (row) {
+            rows.forEach(function (row) {
                 var showRow = true;
-
                 Object.keys(filterStates).forEach(function (column) {
-                    var filterValue = filterStates[column];
+                    var filterValue = filterStates[column].trim();
                     var cell = row.querySelector('td[data-column="' + column + '"]');
-                    var cellValue = cell.textContent;
+                    var cellValue = cell.textContent.trim();
 
-                    if (!isNaN(parseFloat(cellValue))) {
-                        var floatValue = parseFloat(cellValue);
-
-                        if (floatValue <= parseFloat(filterValue)) {
-                            showRow = false;
-                        }
-                    }
-
-                    else if (filterValue !== '' && cellValue !== filterValue) {
-                        showRow = false;
+                    if (filterValue !== '') {
+                        showRow = (cellValue === filterValue);
                     }
                 });
 
                 row.style.display = showRow ? '' : 'none';
             });
-            }
+        }
 
-            function setFilterState(column, filterValue) {
-                filterStates[column] = filterValue;
-                filterRows();
-            }
+        function setFilterState(column, filterValue) {
+            filterStates[column] = filterValue;
+            filterRows();
+        }
+
+        function resetFilters() {
+            Object.keys(filterStates).forEach(function (column) {
+                filterStates[column] = '';
+            });
+            filterRows();
+        }
+    </script>
+
+    <script>
+        function filterColumn(column, filterValue) {
+            setFilterState(column, filterValue);
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var table = document.getElementById('result-table');
+            var resetBtn = document.getElementById('reset-filters-btn');
+
+            var filterDropdowns = Array.from(table.querySelectorAll('.filter-dropdown'));
 
             function resetFilters() {
-                Object.keys(filterStates).forEach(function (column) {
-                    filterStates[column] = '';
+                filterDropdowns.forEach(function (dropdown) {
+                    dropdown.value = 'All';
                 });
-                filterRows();
             }
-        </script>
 
-        <script>
-            function filterColumn(column, filterValue) {
-                setFilterState(column, filterValue);
-            }
-        </script>
+            resetBtn.addEventListener('click', resetFilters);
+        });
+    </script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var table = document.getElementById('result-table');
-                var resetBtn = document.getElementById('reset-filters-btn');
+    <script>
+        function generateLink(variant, genome) {
+            var parts = variant.split(':');
+            var chr = parts[0];
+            var pos = parts[1];
+            var genome = genome;
 
-                var filterDropdowns = Array.from(table.querySelectorAll('.filter-dropdown'));
-
-                function resetFilters() {
-                    filterDropdowns.forEach(function(dropdown) {
-                        dropdown.value = 'All';
-                    });
-                }
-
-                resetBtn.addEventListener('click', resetFilters);
-            });
-        </script>
-
-        <script>
-            function filterAbSpliceDNA(cutoff) {
-                var rows = document.querySelectorAll('#result-table tbody tr');
-                var filterValues = [];
-
-                rows.forEach(function (row) {
-                    var abspliceDNA = parseFloat(row.querySelector('td[data-column="column4"]').textContent);
-                    var filterValue = 0;
-
-                    if (cutoff === 'high' && abspliceDNA > 0.2) {
-                        filterValue = 0.2;
-                    } else if (cutoff === 'medium' && abspliceDNA > 0.05) {
-                        filterValue = 0.05;
-                    } else if (cutoff === 'low' && abspliceDNA > 0.01) {
-                        filterValue = 0.01;
-                    } else if (cutoff === 'all' && abspliceDNA > -1) {
-                        filterValue = -1;
-                    }
-
-                    filterValues.push(filterValue);
-                });
-
-                var maxFilterValue = Math.max(...filterValues);
-                filterStates['column4'] = maxFilterValue;
-                filterRows();
-            }
-        </script>
-        
-        <script>
-            function generateLink(variant, genome) {
-                var parts = variant.split(':');
-                var chr = parts[0];
-                var pos = parts[1];
-                var genome = genome;
-
-                var url = "https://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genome + '&position=' + chr + ":" + pos;
-                window.open(url, "_blank");
-            }
-        </script>
-    </div>
+            var url = "https://genome.ucsc.edu/cgi-bin/hgTracks?db=" + genome + '&position=' + chr + ":" + pos;
+            window.open(url, "_blank");
+        }
+    </script>
+</div>
 </body>
 </html>

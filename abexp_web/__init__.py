@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from flask_talisman import Talisman
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -30,19 +30,25 @@ def create_app():
     def index():
         return render_template('index.html')
 
+    @app.route('/api/tissues')
+    def tissues():
+        tissues = abexp_service.get_tissues()
+        return jsonify(tissues)
+
     @app.route('/run_abexp', methods=['POST'])
     def run_abexp():
         # Get the user's input from the form
         snv_input = utils.parse_input(escape(request.form['snv_input']))
-        max_score_only = BINARY_MAP[request.form['max_score']]
         tissues = request.form.getlist('tissue_checkbox')
-        extra_info = BINARY_MAP[request.form['extra_info']]
+        genome = request.form['genome']
+        max_score_only = BINARY_MAP[request.form['max_score']]
         try:
-            df = abexp_service.run_abexp(snv_input, max_score_only, tissues, extra_info)
-            return render_template('result.html', output=df.tolist(),
-                                   unique_column1_values=sorted(set(df['variant'].unique().values())),
-                                   unique_column2_values=sorted(set(df['gene_id'].unique().values())),
-                                   unique_column4_values=sorted(set(df['tissue'].unique().values())),
+            df = abexp_service.run_abexp(snv_input, tissues, genome, max_score_only)
+            return render_template('result.html', output=df.values.tolist(),
+                                   unique_column1_values=sorted(set(df['variant'].unique())),
+                                   unique_column2_values=sorted(set(df['gene'].unique())),
+                                   unique_column4_values=sorted(set(df['tissue'].unique())),
+                                   genome=genome,
                                    csv_output=df.to_csv(index=False))
         except Exception as e:
             error_message = str(e)
