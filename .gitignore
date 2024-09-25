@@ -13,7 +13,7 @@ dist/
 build/
 *.egg-info/
 
-.env*
+.env
 data/
 download/
 *.duckdb
