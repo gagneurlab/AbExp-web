@@ -41,7 +41,7 @@ poetry run flask run
 ## Deployment
 To deploy the app in production, define a .env file with the following variables.
 Make sure to define the SECRET_KEY variable to something random. 
-The production environment will only with https.
+The production environment will redirect all requests to https.
 
 ```bash
 FLASK_ENV=production
