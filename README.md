@@ -39,3 +39,23 @@ To run the web app, run:
 poetry run flask run
 ```
 
+## Deployment
+To deploy the app in production, define a .env file with the following variables.
+Make sure to define the SECRET_KEY variable to something random. 
+The production environment will only with https.
+
+```bash
+FLASK_ENV=production
+SECRET_KEY=<secret_key>
+DATA_PATH = './data'
+ABEXP_SCORE_COLUMN = 'abexp_v1.1'
+```
+
+To deploy the app, run:
+
+```bash
+docker compose up -d
+```
+
+
+

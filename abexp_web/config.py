@@ -11,7 +11,8 @@ class Config:
     FLASK_ENV = environ.get('FLASK_ENV', 'production')
     SECRET_KEY = environ.get('SECRET_KEY')
     FORCE_HTTPS = environ.get('FORCE_HTTPS', False)
-    DATASETS = None
+    DATA_PATH = environ.get('DATA_PATH', None)
+    SCORE_COLUMN = environ.get('ABEXP_SCORE_COLUMN', 'abexp_v1.1')
     DB_PATH = 'abexp.duckdb'
     TESTING = False
     STATIC_FOLDER = 'static'

@@ -20,8 +20,8 @@ def test_run_abexp(app):
         df = run_abexp(['chr18:10472382:C>T', 'chr18:10472382:C>A'], ['Adrenal Gland'], 'hg19', False)
         print(df)
         assert df.shape[0] == 2
-        assert list(df.columns) == ['variant', 'gene', 'gene_name', 'tissue_type', 'tissue', 'abexp_score']
+        assert list(df.columns) == ['variant', 'gene', 'gene_name', 'tissue', 'abexp_score']
         df = run_abexp(['chr18:10372382:C>T'], ['Adrenal Gland'], 'hg19', False)
         print(df)
         assert df.shape[0] == 0
-        assert list(df.columns) == ['variant', 'gene', 'gene_name', 'tissue_type', 'tissue', 'abexp_score']
+        assert list(df.columns) == ['variant', 'gene', 'gene_name', 'tissue', 'abexp_score']

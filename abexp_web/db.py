@@ -1,6 +1,10 @@
 import duckdb
 from flask import g, current_app
 import click
+from pathlib import Path
+
+ABEXP_PQ_NAME = 'abexp.parquet'
+GENE_MAP_TSV_NAME = 'gene_map.tsv'
 
 
 def get_db():
@@ -13,10 +17,9 @@ def get_db():
 
 def init_db():
     db = get_db()
-    dataset_path = current_app.config['DATASET_PATH']
+    dataset_path = Path(current_app.config['DATA_PATH']) / ABEXP_PQ_NAME / '**/*.parquet'
+    gene_map_path = Path(current_app.config['DATA_PATH']) / GENE_MAP_TSV_NAME
     score_column = current_app.config['SCORE_COLUMN']
-    gene_map_path = current_app.config['GENE_MAP_PATH']
-
     db.execute(f"""
     CREATE OR REPLACE VIEW abexp AS 
     SELECT genome, concat_ws(':', chrom, (start + 1), "ref" || '>' || "alt") AS 'variant', chrom, 

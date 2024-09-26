@@ -26,6 +26,10 @@ def create_app():
         default_limits=["300 per day", "60 per hour"],
     )
 
+    @app.route('/api/env')
+    def env():
+        return jsonify(app.config['FLASK_ENV'])
+
     @app.route('/')
     def index():
         return render_template('index.html')
