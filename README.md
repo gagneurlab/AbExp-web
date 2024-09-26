@@ -1,7 +1,6 @@
 # AbExp web interface
 
-This is the web interface for the [AbExp](https://github.com/gagneurlab/abexp) project.
-It is a simple web interface that allows users to get the AbExp scores for precomputed variants.
+This is the web interface for the [AbExp](https://github.com/gagneurlab/abexp) project, based on the [AbSplice-web-interface](https://github.com/neverov-am/absplice_web_interface). It is a simple web interface that allows users to get the AbExp scores for precomputed variants.
 The web interface is built using the Flask web framework.
 
 ## Development
