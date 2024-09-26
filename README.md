@@ -44,7 +44,7 @@ poetry install
 #poetry install --with dev
 ```
 
-To set the environment variables, creae a `.env` file in the root of the project.
+To set the environment variables, create a `.env` file in the root of the project.
 You can simply copy `.env.development` and rename it to `.env`.
 
 To set up duckdb:
