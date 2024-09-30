@@ -72,8 +72,6 @@
                                     $(this).attr('title', $(this).val());
                                     var regexr = '({search})';
 
-                                    var cursorPosition = this.selectionStart;
-
                                     api
                                         .column(colIdx)
                                         .search(
@@ -86,6 +84,7 @@
                                         .draw();
                                 })
                                 .on('keyup', function (e) {
+                                    var cursorPosition = this.selectionStart;
                                     e.stopPropagation();
 
                                     $(this).trigger('change');
@@ -175,20 +174,15 @@
 </head>
 <body>
 <div id="info-content-AbExp" class="info-content" style="display: none;">
-    <p>The AbSplice score is a probability estimate of how likely aberrant splicing of some sort takes place in a given
-        tissue and reports the splice site with the strongest effect. To ease downstream applications we suggest three
-        cutoffs (high: 0.2, medium: 0.05, low: 0.01), which approximately have the same recalls as the high, medium and
-        low cutoffs of SpliceAI.</p>
-</div>
-<div id="info-content-Tissue" class="info-content" style="display: none;">
-    <p>Name of the tissue that was used from SpliceMap.</p>
+    <p>The AbExp score shows how much the gene expression is above or below the average population, measured in standard
+        deviations.</p>
 </div>
 <div class="container-fluid" id="main_container">
     <div class="container-fluid">
         <h1 class="text-center mt-5 mb-5">AbExp output</h1>
-        <p>On this page you can see the AbSplice output for your variant(s). Use filter options to display results for
-            only those tissues, genes or variants that you want to view. Use filter for AbSplice score column to show
-            only those scores that are higher than the chosen cutoff.</p>
+        <p>On this page you can see the AbExp output for your variant(s). Use filter options to display results for
+            only those tissues, genes or variants that you want to view. Use filter for AbExp score column to show
+            only those scores that are smaller than the chosen cutoff.</p>
         <p>The output table contains the following columns with hyperlinks:
         <ul>
             <li>Variant: Link to the UCSC browser</li>
@@ -240,8 +234,7 @@
                 </th>
                 <th class="align-top">Gene name
                 </th>
-                <th class="align-top">Tissue <i class="fas fa-info-circle" onmouseover="showInfo('Tissue')"
-                                                onmouseout="hideInfo('Tissue')"></i>
+                <th class="align-top">Tissue
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle blue-button btn-sm" type="button"
                                 id="column3-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -131,9 +131,8 @@
 </head>
 <body>
 <div id="info-content-max_score" class="info-content" style="display: none;">
-    <p>This option will display only the maximum score across tissues per variant. Recommended for faster prioritization
-        of the input variants. Note: the full output with scores per tissue will still be available for download as a
-        CSV file.</p>
+    <p>This option will display only the most extreme variant effects across tissues per variant.
+        Recommended for faster prioritization of the input variants.</p>
 </div>
 <div class="container" style="margin-bottom: 50px" id="main_container">
     <h1 class="text-center mt-5 mb-5">AbExp web interface</h1>
@@ -173,9 +172,9 @@ chr17 10631737 C GT
                     <button type="button" class="suppl_button" onclick="toggleTissues()">Advanced settings</button>
                 </p>
                 <div id="tissuesDiv" style="display: none;">
-                    <p>Display only the max score across tissues <i class="fas fa-info-circle"
-                                                                    onmouseover="showInfo('max_score')"
-                                                                    onmouseout="hideInfo('max_score')"></i>:
+                    <p>Display only the most extreme effect across tissues <i class="fas fa-info-circle"
+                                                                              onmouseover="showInfo('max_score')"
+                                                                              onmouseout="hideInfo('max_score')"></i>:
                         <label for="Yes">
                             <input type="radio" name="max_score" id="Yes_max_score" value="Yes" required>
                             Yes
@@ -210,13 +209,17 @@ chr17 10631737 C GT
                 </div>
             </div>
             <p>
-                This website provides an interface for running AbExp on arbitrary variants. AbSplice is a method that
-                predicts aberrant splicing across human tissues (<a href="https://doi.org/10.1038/s41588-023-01373-3"
-                                                                    target="_blank">Wagner, Çelik et al., Nature
-                Genetics 2023</a>)
-                based on enhanced tissue-specific splice site annotations (<a
-                    href="https://github.com/gagneurlab/splicemap" target="_blank">SpliceMaps</a>). The scores represent
-                the probability that a given variant causes aberrant splicing in a given tissue.
+                This website provides an interface for running AbExp on arbitrary variants. AbExp is a method that
+                predicts aberrant gene expression across human tissues (<a
+                    href="https://doi.org/10.1101/2023.12.04.569414"
+                    target="_blank">Hölzlwimmer et al., bioRxiv</a>)
+                by integrating various variant annotations with tissue-specific
+                <a href="https://zenodo.org/records/8427312/files/gtex_v8_isoform_proportions.tsv?download=1"
+                   target="_blank">isoform proportions</a> and
+                <a href="https://zenodo.org/records/8427312/files/gtex_v8_expected_expression.tsv?download=1"
+                   target="_blank">expression variability</a>.
+                The predicted AbExp score shows how much the gene
+                expression is above or below the average population, measured in standard deviations.
             </p>
             <p>
                 Please also check our <a href="https://github.com/gagneurlab/abexp" target="_blank">GitHub
@@ -224,13 +227,10 @@ chr17 10631737 C GT
                     href="https://github.com/gagneurlab/abexp/issues" target="_blank">Issues</a> section on GitHub.
             </p>
             <p>
-                Precomputed AbSplice-DNA scores for all possible single-nucleotide variants genome-wide are available <a
-                    href="https://doi.org/10.5281/zenodo.6408331" target="_blank">here</a> (hg38) and <a
-                    href="https://zenodo.org/doi/10.5281/zenodo.10776852" target="_blank">here</a> (hg19) for download.
-            </p>
-            <p>
-                <i>The web interface was developed by Aleksandr Neverov under the supervision of Nils Wagner, Dr.
-                    Christian Mertes, Dr. Vicente Yepez and Prof. Dr. Julien Gagneur at <a
+                <i>The web interface is based on the <a href="https://absplice.cmm.cit.tum.de/" target="_blank">AbSplice
+                    web interface</a>,
+                    and was developed by Georgios Tsitsiridis under the supervision of Florian Hölzlwimmer and Prof. Dr.
+                    Julien Gagneur at <a
                             href="https://github.com/gagneurlab" target="_blank">Gagneur Lab</a></i>
             </p>
         </div>
