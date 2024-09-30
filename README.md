@@ -67,8 +67,8 @@ The production environment will redirect all requests to https.
 ```bash
 FLASK_ENV=production
 SECRET_KEY=<secret_key> # should be something random
-DATA_PATH = './data' # the location of the dataset, as defined above
-ABEXP_SCORE_COLUMN = 'abexp_v1.1' # the column name of the abexp-score in the abexp.parquet file
+DATA_PATH='./data' # the location of the dataset, as defined above
+ABEXP_SCORE_COLUMN='abexp_v1.1' # the column name of the abexp-score in the abexp.parquet file
 ```
 
 To deploy the app, run:

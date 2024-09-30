@@ -1,6 +1,11 @@
 services:
   abexp_app:
-    build: .
+    build:
+      context: .
+      args:
+        - FLASK_ENV=${FLASK_ENV}
+        - SECRET_KEY=${SECRET_KEY}
+        - ABEXP_SCORE_COLUMN=${ABEXP_SCORE_COLUMN}
     image: abexp_web:latest
     container_name: abexp_web
     ports:
