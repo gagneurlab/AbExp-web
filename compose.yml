@@ -1,5 +1,6 @@
 services:
   abexp_app:
+    build: .
     image: abexp_web:latest
     container_name: abexp_web
     ports:
