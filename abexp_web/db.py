@@ -9,16 +9,16 @@ TISSUES_TXT_NAME = 'tissues.txt'
 GENOMES_TXT_NAME = 'genomes.txt'
 
 
-def get_db():
+def get_db(read_only=True):
     db_p = current_app.config['DB_PATH']
     if 'db' not in g:
-        g.db = duckdb.connect(db_p)
+        g.db = duckdb.connect(db_p, read_only=read_only)
 
     return g.db
 
 
 def init_db():
-    db = get_db()
+    db = get_db(read_only=False)
     dataset_path = Path(current_app.config['DATA_PATH']) / ABEXP_PQ_NAME / '**/*.parquet'
     gene_map_path = Path(current_app.config['DATA_PATH']) / GENE_MAP_TSV_NAME
     genomes_path = Path(current_app.config['DATA_PATH']) / GENOMES_TXT_NAME
