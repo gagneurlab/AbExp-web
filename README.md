@@ -62,20 +62,27 @@ poetry run flask run
 ## Deployment
 To deploy the app in production, define a .env file with the following variables.
 Make sure to define the SECRET_KEY variable to something random. 
-The production environment will redirect all requests to https.
 
 ```bash
 FLASK_ENV=production
 SECRET_KEY=<secret_key> # should be something random
 DATA_PATH='./data' # the location of the dataset, as defined above
+DUCKDB_PATH='./duckdb' # the location where the duckdb will be created
 ABEXP_SCORE_COLUMN='abexp_v1.1' # the column name of the abexp-score in the abexp.parquet file
 ```
 
 To deploy the app, run:
 
 ```bash
+mkdir duckdb
 docker compose up -d
 ```
 
+### Convert into singularity image
 
+```
+apptainer build abexp_web.sif docker-daemon://abexp_web:latest
+mkdir duckdb
+apptainer exec --bind duckdb:/duckdb:rw --bind example_files:/data:ro abexp_web.sif   sh -c "cd /app; flask init-db && gunicorn abexp_web.wsgi:app -b 0.0.0.0:5000 -w 4"
+```
 
