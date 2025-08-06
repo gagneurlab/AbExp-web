@@ -12,6 +12,7 @@ def change_test_dir(request, monkeypatch):
 @pytest.fixture
 def app():
     app = create_app()
+    print('Setting up the app for testing...')
     with app.app_context():
         init_db()
 

@@ -8,7 +8,7 @@ authors = ["George Tsitsiridis <gtsitsiridis@gmail.com>",
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 flask = "^3.0.3"
 flask-talisman = "^1.1.0"
 flask-limiter = "^3.8.0"

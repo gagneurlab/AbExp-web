@@ -1,5 +1,5 @@
 # Use the official Python 3.8 slim image as the base image
-FROM python:3.8-slim
+FROM python:3.9-slim
 
 ARG ABEXP_SCORE_COLUMN
 ARG SECRET_KEY
@@ -14,10 +14,10 @@ ENV SECRET_KEY=${SECRET_KEY}
 WORKDIR /app
 
 # install dependencies
-COPY poetry.lock pyproject.toml .flaskenv /app/
+COPY poetry.lock pyproject.toml .flaskenv README.md /app/
 RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
-RUN poetry install --no-dev --no-root
+RUN poetry install --without dev --no-root
 
 # copy source code
 COPY abexp_web/ ./abexp_web/

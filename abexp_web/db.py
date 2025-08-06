@@ -5,6 +5,8 @@ from pathlib import Path
 
 ABEXP_PQ_NAME = 'abexp.parquet'
 GENE_MAP_TSV_NAME = 'gene_map.tsv'
+TISSUES_TXT_NAME = 'tissues.txt'
+GENOMES_TXT_NAME = 'genomes.txt'
 
 
 def get_db():
@@ -19,28 +21,20 @@ def init_db():
     db = get_db()
     dataset_path = Path(current_app.config['DATA_PATH']) / ABEXP_PQ_NAME / '**/*.parquet'
     gene_map_path = Path(current_app.config['DATA_PATH']) / GENE_MAP_TSV_NAME
+    genomes_path = Path(current_app.config['DATA_PATH']) / GENOMES_TXT_NAME
+    tissues_path = Path(current_app.config['DATA_PATH']) / TISSUES_TXT_NAME
     score_column = current_app.config['SCORE_COLUMN']
+
+    click.echo('Creating abexp view...')
+
     db.execute(f"""
     CREATE OR REPLACE VIEW abexp AS 
     SELECT genome, concat_ws(':', chrom, (start + 1), "ref" || '>' || "alt") AS 'variant', chrom, 
         start, "end", ref, alt, gene, tissue, tissue_type,"{score_column}" AS 'abexp_score'
-    FROM '{dataset_path}';
+    FROM read_parquet('{dataset_path}', hive_partitioning = True);
     """)
 
-    db.execute("""
-    CREATE OR REPLACE TABLE tissue_types AS
-    SELECT DISTINCT tissue_type FROM abexp ORDER BY tissue_type;
-    """)
-
-    db.execute("""
-    CREATE OR REPLACE TABLE tissues AS
-    SELECT DISTINCT tissue FROM abexp ORDER BY tissue;
-    """)
-
-    db.execute("""
-    CREATE OR REPLACE TABLE genomes AS
-    SELECT DISTINCT genome FROM abexp ORDER BY genome;
-    """)
+    click.echo('Creating gene map...')
 
     db.execute(f"""
     CREATE OR REPLACE TABLE gene_map AS
@@ -49,9 +43,26 @@ def init_db():
     GROUP BY gene_id; 
     """)
 
+    click.echo('Creating genomes table...')
+
+    db.execute(f"""
+    CREATE OR REPLACE TABLE genomes AS
+    SELECT column0 as genome FROM read_csv('{genomes_path}', header = False, sep = "\n")
+    WHERE column0 IS NOT NULL AND column0 != '';
+    """)
+
+    click.echo('Creating tissues table...')
+
+    db.execute(f"""
+    CREATE OR REPLACE TABLE tissues AS
+    SELECT column0 as tissue FROM read_csv('{tissues_path}', header = False, sep = "\n")
+    WHERE column0 IS NOT NULL AND column0 != '';
+    """)
+
 
 @click.command('init-db')
 def init_db_command():
+    click.echo('Initializing the database...')
     init_db()
     click.echo('Initialized the database.')
 
