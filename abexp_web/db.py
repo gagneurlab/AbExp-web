@@ -25,19 +25,10 @@ def init_db():
     tissues_path = Path(current_app.config['DATA_PATH']) / TISSUES_TXT_NAME
     score_column = current_app.config['SCORE_COLUMN']
 
-    click.echo('Creating abexp view...')
-
-    db.execute(f"""
-    CREATE OR REPLACE VIEW abexp AS 
-    SELECT genome, concat_ws(':', chrom, (start + 1), "ref" || '>' || "alt") AS 'variant', chrom, 
-        start, "end", ref, alt, gene, tissue, tissue_type,"{score_column}" AS 'abexp_score'
-    FROM read_parquet('{dataset_path}', hive_partitioning = True);
-    """)
-
     click.echo('Creating gene map...')
 
     db.execute(f"""
-    CREATE OR REPLACE TABLE gene_map AS
+    CREATE  TABLE IF NOT EXISTS gene_map AS
     SELECT gene_id as gene, group_concat(gene_name, ', ') as gene_name
     FROM read_csv('{gene_map_path}', header = True, sep = "\t")
     GROUP BY gene_id; 
@@ -46,7 +37,7 @@ def init_db():
     click.echo('Creating genomes table...')
 
     db.execute(f"""
-    CREATE OR REPLACE TABLE genomes AS
+    CREATE TABLE IF NOT EXISTS genomes AS
     SELECT column0 as genome FROM read_csv('{genomes_path}', header = False, sep = "\n")
     WHERE column0 IS NOT NULL AND column0 != '';
     """)
@@ -54,9 +45,18 @@ def init_db():
     click.echo('Creating tissues table...')
 
     db.execute(f"""
-    CREATE OR REPLACE TABLE tissues AS
+    CREATE TABLE IF NOT EXISTS tissues AS
     SELECT column0 as tissue FROM read_csv('{tissues_path}', header = False, sep = "\n")
     WHERE column0 IS NOT NULL AND column0 != '';
+    """)
+
+    click.echo('Creating abexp table...')
+
+    db.execute(f"""
+    CREATE TABLE IF NOT EXISTS abexp AS 
+    SELECT genome, concat_ws(':', chrom, (start + 1), "ref" || '>' || "alt") AS 'variant', chrom, 
+        start, "end", ref, alt, gene, tissue, tissue_type,"{score_column}" AS 'abexp_score'
+    FROM read_parquet('{dataset_path}', hive_partitioning = True);
     """)
 
 
