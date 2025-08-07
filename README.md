@@ -89,5 +89,5 @@ mkdir duckdb
 apptainer exec --bind duckdb:/duckdb:rw --bind example_files:/data:ro abexp_web.sif   sh -c "cd /app; flask init-db && gunicorn abexp_web.wsgi:app -b 0.0.0.0:5000 -w 4"
 
 # other example
-apptainer exec --bind duckdb:/duckdb:rw --bind example_files:/data:ro --bind /s/project/abexp_veff/all_variant_combinations/hg38/predict/abexp_v1.1:/data/abexp.parquet/genome=hg38:ro --bind /s/project/abexp_veff/all_variant_combinations/hg19/predict/abexp_v1.1:/data/abexp.parquet/genome=hg19:ro abexp_web_view.sif sh -c "cd /app; flask init-db && gunicorn abexp_web.wsgi:app -b 0.0.0.0:5000 -w 4"
+apptainer exec --bind duckdb:/duckdb:rw --bind example_files:/data:ro --bind /s/project/abexp_veff/all_variant_combinations/hg38/predict/abexp_v1.1:/data/abexp.parquet/genome=hg38:ro --bind /s/project/abexp_veff/all_variant_combinations/hg19/predict/abexp_v1.1:/data/abexp.parquet/genome=hg19:ro abexp_web.sif sh -c "cd /app; flask init-db && gunicorn abexp_web.wsgi:app -b 0.0.0.0:5000 -w 4"
 ```
