@@ -31,6 +31,10 @@ def run_abexp(snv_input, tissues, genome, max_score_only):
     ) a LEFT JOIN gene_map ON a.gene = gene_map.gene;
     """).fetchdf()
 
+    df = df.assign(
+        variant=lambda x: x['chrom'].astype(str) + ':' + (x['start'] + 1).astype(str) + ':' + x['ref'] + '>' + x['alt']
+    )
+
     if df.shape[0] != 0:
         if max_score_only:
             df = df.assign(abs_abexp_score=df['abexp_score'].abs())

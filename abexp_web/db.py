@@ -70,19 +70,15 @@ def create_enum_types(db, genomes_path, tissues_path, chromosomes_path):
     else:
         click.echo('Chromosome enum already exists, skipping creation.')
 
-def create_abexp_table(db, dataset_base_path, score_column, memory_limit='2GB', threads=4):
+def create_abexp_table(db, dataset_base_path, score_column):
     """Load data from parquet files into the abexp table."""
     click.echo('Loading Hive-partitioned parquet dataset...')
     
     # Configure DuckDB for memory-efficient processing
-    db.execute(f"SET memory_limit='{memory_limit}'")
-    db.execute(f"SET threads={threads}")
-    db.execute(f"SET preserve_insertion_order = false")
-    click.echo(f"Using memory limit: {memory_limit}, threads: {threads}")
     
     db.execute(f"""
-    CREATE TABLE IF NOT EXISTS abexp AS 
-    SELECT CAST(genome AS genome), CAST(chrom AS chromosome), start, "end", ref, alt, gene, CAST(tissue AS tissue), "{score_column}" AS 'abexp_score'
+    CREATE VIEW IF NOT EXISTS abexp AS 
+    SELECT CAST("genome" AS genome) as genome, CAST("chrom" AS chromosome) as chrom, start, "end", ref, alt, gene, CAST("tissue" AS tissue) as tissue, "{score_column}" AS 'abexp_score'
     FROM read_parquet('{dataset_base_path / '**/*.parquet'}', hive_partitioning = True);
     """)
     
@@ -101,14 +97,12 @@ def init_db(memory_limit='2GB', threads=4):
     # Create all database components
     create_gene_map_table(db, gene_map_path)
     create_enum_types(db, genomes_path, tissues_path, chromosomes_path)
-    create_abexp_table(db, dataset_base_path, score_column, memory_limit=memory_limit, threads=threads)
+    create_abexp_table(db, dataset_base_path, score_column)
 
 @click.command('init-db')
-@click.option('--memory-limit', default='2GB', help='Memory limit for DuckDB')
-@click.option('--threads', default=4, help='Number of threads to use for processing')
-def init_db_command(memory_limit, threads):
+def init_db_command():
     click.echo('Initializing the database...')
-    init_db(memory_limit=memory_limit, threads=threads)
+    init_db()
     click.echo('Initialized the database.')
 
 
