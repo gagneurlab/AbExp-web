@@ -2,11 +2,13 @@ import duckdb
 from flask import g, current_app
 import click
 from pathlib import Path
+from tqdm import tqdm
 
 ABEXP_PQ_NAME = 'abexp.parquet'
 GENE_MAP_TSV_NAME = 'gene_map.tsv'
 TISSUES_TXT_NAME = 'tissues.txt'
 GENOMES_TXT_NAME = 'genomes.txt'
+CHROMOSOMES_TXT_NAME = 'chromosomes.txt'
 
 
 def get_db(read_only=True):
@@ -17,16 +19,9 @@ def get_db(read_only=True):
     return g.db
 
 
-def init_db():
-    db = get_db(read_only=False)
-    dataset_path = Path(current_app.config['DATA_PATH']) / ABEXP_PQ_NAME / '**/*.parquet'
-    gene_map_path = Path(current_app.config['DATA_PATH']) / GENE_MAP_TSV_NAME
-    genomes_path = Path(current_app.config['DATA_PATH']) / GENOMES_TXT_NAME
-    tissues_path = Path(current_app.config['DATA_PATH']) / TISSUES_TXT_NAME
-    score_column = current_app.config['SCORE_COLUMN']
-
+def create_gene_map_table(db, gene_map_path):
+    """Create the gene map table from TSV file."""
     click.echo('Creating gene map...')
-
     db.execute(f"""
     CREATE  TABLE IF NOT EXISTS gene_map AS
     SELECT gene_id as gene, group_concat(gene_name, ', ') as gene_name
@@ -34,36 +29,148 @@ def init_db():
     GROUP BY gene_id; 
     """)
 
-    click.echo('Creating genomes table...')
 
-    db.execute(f"""
-    CREATE TABLE IF NOT EXISTS genomes AS
-    SELECT column0 as genome FROM read_csv('{genomes_path}', header = False, sep = "\n")
-    WHERE column0 IS NOT NULL AND column0 != '';
-    """)
+def create_enum_types(db, genomes_path, tissues_path, chromosomes_path):
+    """Create enum types for genome, tissue, and chromosome."""
 
-    click.echo('Creating tissues table...')
+    existing_types = db.execute("""SELECT type_name FROM duckdb_types WHERE logical_type = 'ENUM';""").fetchall()
+    existing_types = [t[0] for t in existing_types]
 
-    db.execute(f"""
-    CREATE TABLE IF NOT EXISTS tissues AS
-    SELECT column0 as tissue FROM read_csv('{tissues_path}', header = False, sep = "\n")
-    WHERE column0 IS NOT NULL AND column0 != '';
-    """)
+    click.echo('Creating genome enum...')
+    if 'genome' not in existing_types:
+        db.execute(f"""
+            CREATE TYPE genome AS ENUM (
+                SELECT column0 as genome FROM read_csv('{genomes_path}', header = False, sep = "\n")
+                WHERE column0 IS NOT NULL AND column0 != ''
+            );
+        """)
+    else:
+        click.echo('Genome enum already exists, skipping creation.')
+        
 
+    click.echo('Creating tissue enum...')
+    if 'tissue' not in existing_types:
+        db.execute(f"""
+            CREATE TYPE tissue AS ENUM (
+                SELECT column0 as tissue FROM read_csv('{tissues_path}', header = False, sep = "\n")
+                WHERE column0 IS NOT NULL AND column0 != ''
+            );
+        """)
+    else:
+        click.echo('Tissue enum already exists, skipping creation.')
+
+    click.echo('Creating chromosome enum...')
+    if 'chromosome' not in existing_types:
+        db.execute(f"""
+            CREATE TYPE chromosome AS ENUM (
+                SELECT column0 as chromosome FROM read_csv('{chromosomes_path}', header = False, sep = "\n")
+                WHERE column0 IS NOT NULL AND column0 != ''
+            );
+        """)
+    else:
+        click.echo('Chromosome enum already exists, skipping creation.')
+
+
+def create_abexp_table(db):
+    """Create the main abexp table."""
     click.echo('Creating abexp table...')
-
-    db.execute(f"""
-    CREATE TABLE IF NOT EXISTS abexp AS 
-    SELECT genome, concat_ws(':', chrom, (start + 1), "ref" || '>' || "alt") AS 'variant', chrom, 
-        start, "end", ref, alt, gene, tissue, tissue_type,"{score_column}" AS 'abexp_score'
-    FROM read_parquet('{dataset_path}', hive_partitioning = True);
+    db.execute("""
+    CREATE TABLE IF NOT EXISTS abexp (
+        genome genome,
+        variant TEXT,
+        chrom chromosome,
+        start BIGINT,
+        "end" BIGINT,
+        ref TEXT,
+        alt TEXT,
+        gene TEXT,
+        tissue tissue,
+        abexp_score DOUBLE,
+        PRIMARY KEY (genome, chrom, tissue, ref, alt, start, "end", gene)
+    );
     """)
+
+
+def load_parquet_data(db, dataset_base_path, score_column, batch_size=10, 
+                      memory_limit='2GB', threads=4):
+    """Load data from parquet files into the abexp table."""
+    click.echo('Loading Hive-partitioned parquet dataset...')
+    
+    # Configure DuckDB for memory-efficient processing
+    db.execute(f"SET memory_limit='{memory_limit}'")  # Adjust based on available system memory
+    db.execute(f"SET threads={threads}")  # Limit threads to control memory usage
+    click.echo(f"Using memory limit: {memory_limit}, threads: {threads}")
+
+    # Find all parquet files recursively using pathlib for controlled processing
+    parquet_files = []
+    for parquet_file in dataset_base_path.rglob('*.parquet'):
+        parquet_files.append(str(parquet_file))
+    
+    click.echo(f'Found {len(parquet_files)} parquet files')
+    
+    if len(parquet_files) == 0:
+        click.echo('No parquet files found')
+        return
+    
+    # Process files in batches to control memory usage
+    batch_size = 10  # Process 10 files at a time
+    total_batches = (len(parquet_files) + batch_size - 1) // batch_size
+    
+    for batch_idx in range(total_batches):
+        start_idx = batch_idx * batch_size
+        end_idx = min((batch_idx + 1) * batch_size, len(parquet_files))
+        batch_files = parquet_files[start_idx:end_idx]
+        
+        click.echo(f'Processing batch {batch_idx + 1}/{total_batches} ({len(batch_files)} files)')
+        
+        # Process each file in the batch with progress bar
+        with tqdm(batch_files, desc=f"Batch {batch_idx + 1}/{total_batches}", unit="file") as pbar:
+            for parquet_file in pbar:
+                pbar.set_postfix_str(f"Current: {Path(parquet_file).name}")
+                
+                try:
+                    # Insert data from this specific file
+                    # Each file is processed individually to control memory usage
+                    db.execute(f"""
+                    INSERT OR IGNORE INTO abexp
+                    SELECT genome, concat_ws(':', chrom, (start + 1), "ref" || '>' || "alt") AS 'variant', chrom, 
+                        start, "end", ref, alt, gene, tissue, "{score_column}" AS 'abexp_score'
+                    FROM read_parquet('{parquet_file}', hive_partitioning = True);
+                    """)
+                    
+                except Exception as e:
+                    tqdm.write(f'Error processing {parquet_file}: {e}')
+                    continue
+        
+        click.echo(f'Completed batch {batch_idx + 1}/{total_batches}')
+    
+    click.echo('Finished inserting data into abexp table')
+
+def init_db(batch_size=10, memory_limit='2GB', threads=4):
+    """Initialize the database with all tables and data."""
+    db = get_db(read_only=False)
+    dataset_base_path = Path(current_app.config['DATA_PATH']) / ABEXP_PQ_NAME
+    gene_map_path = Path(current_app.config['DATA_PATH']) / GENE_MAP_TSV_NAME
+    genomes_path = Path(current_app.config['DATA_PATH']) / GENOMES_TXT_NAME
+    tissues_path = Path(current_app.config['DATA_PATH']) / TISSUES_TXT_NAME
+    chromosomes_path = Path(current_app.config['DATA_PATH']) / CHROMOSOMES_TXT_NAME
+    score_column = current_app.config['SCORE_COLUMN']
+
+    # Create all database components
+    create_gene_map_table(db, gene_map_path)
+    create_enum_types(db, genomes_path, tissues_path, chromosomes_path)
+    create_abexp_table(db)
+    load_parquet_data(db, dataset_base_path, score_column, batch_size=batch_size,
+                      memory_limit=memory_limit, threads=threads)
 
 
 @click.command('init-db')
-def init_db_command():
+@click.option('--batch-size', default=10, help='Number of files to process in each batch')
+@click.option('--memory-limit', default='2GB', help='Memory limit for DuckDB')
+@click.option('--threads', default=4, help='Number of threads to use for processing')
+def init_db_command(batch_size, memory_limit, threads):
     click.echo('Initializing the database...')
-    init_db()
+    init_db(batch_size=batch_size, memory_limit=memory_limit, threads=threads)
     click.echo('Initialized the database.')
 
 

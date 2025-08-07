@@ -2,7 +2,7 @@ from . import utils
 import pandas as pd
 import duckdb
 from .db import get_db
-
+import click
 
 # GENE_MAP = pd.read_csv('data/resources/gene_map.tsv', sep='\t')
 
@@ -12,14 +12,22 @@ def run_abexp(snv_input, tissues, genome, max_score_only):
     variants = []
     for snv in snv_input:
         chr_name, pos, ref, alt = utils.split_variant(snv)
-        variants.append(f"{chr_name}:{pos}:{ref}>{alt}")
+        variants.append((chr_name, pos, ref, alt))
+
+    variant_conditions = []
+    for chr_name, pos, ref, alt in variants:
+        condition = f"(chrom='{chr_name}' AND start={pos - 1} AND ref='{ref}' AND alt='{alt}')"
+        variant_conditions.append(condition)
+    variant_where = " OR ".join(variant_conditions)
+
+    tissue_list = ",".join([f"'{t}'" for t in tissues])
 
     df = db.execute(f"""
     SELECT * FROM (
         SELECT * FROM abexp 
         WHERE genome = '{genome}' AND 
-            variant IN ({','.join([f"'{v}'" for v in variants])}) AND 
-            tissue IN ({','.join([f"'{t}'" for t in tissues])})
+            tissue IN ({tissue_list}) AND
+            ({variant_where})
     ) a LEFT JOIN gene_map ON a.gene = gene_map.gene;
     """).fetchdf()
 
@@ -41,5 +49,5 @@ def run_abexp(snv_input, tissues, genome, max_score_only):
 
 def get_tissues():
     db = get_db()
-    tissues = db.execute("SELECT tissue FROM tissues").fetchall()
-    return [tissue[0] for tissue in tissues]
+    tissues = db.execute("SELECT enum_range(NULL::tissue) AS tissue;").fetchone()[0]
+    return tissues
