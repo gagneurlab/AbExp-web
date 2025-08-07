@@ -78,8 +78,11 @@ mkdir duckdb
 docker compose up -d
 ```
 
-### Convert into singularity image
+### Convert into an apptainer image
 
+[Prebuilt image](https://github.com/gagneurlab/AbExp-web/releases/tag/v1.0.0)
+
+You can create an apptainer image by following:
 ```
 apptainer build abexp_web.sif docker-daemon://abexp_web:latest
 mkdir duckdb
