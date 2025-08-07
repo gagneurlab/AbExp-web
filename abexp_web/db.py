@@ -91,7 +91,7 @@ def create_abexp_table(db):
     """)
 
 
-def load_parquet_data(db, dataset_base_path, score_column, memory_limit='2GB', threads=4):
+def load_parquet_data(db, dataset_base_path, score_column, batch_size=10, memory_limit='2GB', threads=4):
     """Load data from parquet files into the abexp table."""
     click.echo('Loading Hive-partitioned parquet dataset...')
     
@@ -111,27 +111,41 @@ def load_parquet_data(db, dataset_base_path, score_column, memory_limit='2GB', t
         click.echo('No parquet files found')
         return
     
-    # Process each file individually with progress bar
-    # Each file is processed individually to control memory usage
-    with tqdm(parquet_files, desc="Processing parquet files", unit="file") as pbar:
-        for parquet_file in pbar:
-            pbar.set_postfix_str(f"Current: {Path(parquet_file).name}")
+    # Process files in batches using DuckDB's multi-file read capability
+    total_batches = (len(parquet_files) + batch_size - 1) // batch_size
+    
+    with tqdm(total=len(parquet_files), desc="Processing parquet files", unit="file") as pbar:
+        for batch_idx in range(total_batches):
+            start_idx = batch_idx * batch_size
+            end_idx = min((batch_idx + 1) * batch_size, len(parquet_files))
+            batch_files = parquet_files[start_idx:end_idx]
+            
+            # Create file list for DuckDB - this is the real batching!
+            file_list = "['" + "', '".join(batch_files) + "']"
+            
+            pbar.set_description(f"Batch {batch_idx + 1}/{total_batches}")
+            pbar.set_postfix_str(f"Files: {len(batch_files)}")
             
             try:
+                # Read multiple files in a single operation - this is efficient!
                 db.execute(f"""
                 INSERT OR IGNORE INTO abexp
                 SELECT genome, concat_ws(':', chrom, (start + 1), "ref" || '>' || "alt") AS 'variant', chrom, 
                     start, "end", ref, alt, gene, tissue, "{score_column}" AS 'abexp_score'
-                FROM read_parquet('{parquet_file}', hive_partitioning = True);
+                FROM read_parquet({file_list}, hive_partitioning = True);
                 """)
                 
+                # Update progress bar for all files in this batch
+                pbar.update(len(batch_files))
+                
             except Exception as e:
-                tqdm.write(f'Error processing {parquet_file}: {e}')
-                continue
+                tqdm.write(f'Error processing batch {batch_idx + 1}: {e}')
+                tqdm.write(f'Files in failed batch: {[Path(f).name for f in batch_files]}')
+                pbar.update(len(batch_files))  # Still update progress to continue
     
     click.echo('Finished inserting data into abexp table')
 
-def init_db(memory_limit='2GB', threads=4):
+def init_db(batch_size=1000, memory_limit='2GB', threads=4):
     """Initialize the database with all tables and data."""
     db = get_db(read_only=False)
     dataset_base_path = Path(current_app.config['DATA_PATH']) / ABEXP_PQ_NAME
@@ -146,15 +160,16 @@ def init_db(memory_limit='2GB', threads=4):
     create_enum_types(db, genomes_path, tissues_path, chromosomes_path)
     create_abexp_table(db)
     load_parquet_data(db, dataset_base_path, score_column, 
-                      memory_limit=memory_limit, threads=threads)
+                      batch_size=batch_size, memory_limit=memory_limit, threads=threads)
 
 
 @click.command('init-db')
+@click.option('--batch-size', default=1000, help='Number of files to process in each batch')
 @click.option('--memory-limit', default='2GB', help='Memory limit for DuckDB')
 @click.option('--threads', default=4, help='Number of threads to use for processing')
-def init_db_command(memory_limit, threads):
+def init_db_command(batch_size, memory_limit, threads):
     click.echo('Initializing the database...')
-    init_db(memory_limit=memory_limit, threads=threads)
+    init_db(batch_size=batch_size, memory_limit=memory_limit, threads=threads)
     click.echo('Initialized the database.')
 
 
