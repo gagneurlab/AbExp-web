@@ -9,31 +9,35 @@ import click
 
 def run_abexp(snv_input, tissues, genome, max_score_only):
     db = get_db()
-    variants = []
-    for snv in snv_input:
-        chr_name, pos, ref, alt = utils.split_variant(snv)
-        variants.append((chr_name, pos, ref, alt))
-
-    variant_conditions = []
-    for chr_name, pos, ref, alt in variants:
-        condition = f"(chrom='{chr_name}' AND start={pos - 1} AND ref='{ref}' AND alt='{alt}')"
-        variant_conditions.append(condition)
-    variant_where = " OR ".join(variant_conditions)
-
     tissue_list = ",".join([f"'{t}'" for t in tissues])
 
-    df = db.execute(f"""
-    SELECT * FROM (
-        SELECT * FROM abexp 
-        WHERE genome = '{genome}' AND 
-            tissue IN ({tissue_list}) AND
-            ({variant_where})
-    ) a LEFT JOIN gene_map ON a.gene = gene_map.gene;
-    """).fetchdf()
-
-    df = df.assign(
-        variant=lambda x: x['chrom'].astype(str) + ':' + (x['start'] + 1).astype(str) + ':' + x['ref'] + '>' + x['alt']
-    )
+    all_dfs = []
+    
+    for snv in snv_input:
+        chr_name, pos, ref, alt = utils.split_variant(snv)
+        
+        df = db.execute(f"""
+        SELECT * FROM (
+            SELECT * FROM abexp 
+            WHERE genome = '{genome}' AND 
+                tissue IN ({tissue_list}) AND
+                chrom = '{chr_name}' AND
+                start = {pos - 1} AND
+                ref = '{ref}' AND
+                alt = '{alt}'
+        ) a LEFT JOIN gene_map ON a.gene = gene_map.gene;
+        """).fetchdf()
+        
+        if df.shape[0] > 0:
+            df = df.assign(
+                variant=lambda x: x['chrom'].astype(str) + ':' + (x['start'] + 1).astype(str) + ':' + x['ref'] + '>' + x['alt']
+            )
+            all_dfs.append(df)
+    
+    if all_dfs:
+        df = pd.concat(all_dfs, ignore_index=True)
+    else:
+        df = pd.DataFrame(columns=['variant', 'gene', 'gene_name', 'tissue', 'abexp_score'])
 
     if df.shape[0] != 0:
         if max_score_only:

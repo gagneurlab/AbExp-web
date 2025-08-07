@@ -42,11 +42,12 @@ def create_app():
     @app.route('/run_abexp', methods=['POST'])
     def run_abexp():
         # Get the user's input from the form
-        snv_input = utils.parse_input(escape(request.form['snv_input']))
-        tissues = request.form.getlist('tissue_checkbox')
-        genome = request.form['genome']
-        max_score_only = BINARY_MAP[request.form['max_score']]
         try:
+            snv_input = utils.parse_input(escape(request.form['snv_input']))
+            tissues = request.form.getlist('tissue_checkbox')
+            genome = request.form['genome']
+            max_score_only = BINARY_MAP[request.form['max_score']]
+
             df = abexp_service.run_abexp(snv_input, tissues, genome, max_score_only)
             return render_template('result.html', output=df.values.tolist(),
                                    unique_column1_values=sorted(set(df['variant'].unique())),
