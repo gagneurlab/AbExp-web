@@ -12,7 +12,7 @@ services:
       - "5000:5000"
     volumes:
       - ${DATA_PATH}:/data:ro
-      - ${DUCKDB_PATH}:/duckdb:rw
+      - ${ABEXP_DB_PATH}:/duckdb:rw
     command: >
       sh -c "flask init-db &&
              gunicorn abexp_web.wsgi:app -b 0.0.0.0:5000 -w 4"

@@ -13,7 +13,7 @@ class Config:
     FORCE_HTTPS = environ.get('FORCE_HTTPS', False)
     DATA_PATH = environ.get('DATA_PATH', None)
     SCORE_COLUMN = environ.get('ABEXP_SCORE_COLUMN', 'abexp_v1.1')
-    DB_PATH = 'abexp.duckdb'
+    DB_PATH = environ.get('ABEXP_DB_PATH', 'duckdb')
     TESTING = False
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'

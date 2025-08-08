@@ -14,7 +14,8 @@ def test_db(app):
         assert df.shape[0] == 1
         assert df['abexp_score'].values[0] == -0.003749131589629193
 
-
+# chr18:10472382:C>T
+# chr18:10472382:C>A
 def test_run_abexp(app):
     with app.app_context():
         df = run_abexp(['chr18:10472382:C>T', 'chr18:10472382:C>A'], ['Adrenal Gland'], 'hg19', False)

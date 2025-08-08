@@ -3,7 +3,6 @@ from pathlib import Path
 from abexp_web import create_app
 from abexp_web.db import init_db
 
-
 @pytest.fixture(autouse=True)
 def change_test_dir(request, monkeypatch):
     monkeypatch.chdir(Path(request.fspath.dirname).parent)

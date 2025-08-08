@@ -1,6 +1,5 @@
 from . import utils
 import pandas as pd
-import duckdb
 from .db import get_db
 import click
 
@@ -9,35 +8,63 @@ import click
 
 def run_abexp(snv_input, tissues, genome, max_score_only):
     db = get_db()
-    tissue_list = ",".join([f"'{t}'" for t in tissues])
 
-    all_dfs = []
-    
+    # Build a small variants DataFrame and perform a set-based join for efficiency
+    variant_records = []
     for snv in snv_input:
         chr_name, pos, ref, alt = utils.split_variant(snv)
+        variant_records.append({
+            'chrom': chr_name,
+            'start': pos - 1,  # abexp.start is 0-based
+            'ref': ref,
+            'alt': alt
+        })
+    
+    if len(variant_records) > 10:
+        error_message = "The input must not contain more than 10 variants."
+        raise ValueError(error_message)
+
+    if not variant_records:
+        # No input variants provided
+        df = pd.DataFrame(columns=['variant', 'gene', 'gene_name', 'tissue', 'abexp_score'])
+    else:
+        variants_df = pd.DataFrame(variant_records)
+
+        # Build UNION ALL subqueries per chromosome for better partition pruning
+        chromosome_queries = []
+        for chrom in variants_df['chrom'].unique():
+            chrom_variants = variants_df[variants_df['chrom'] == chrom]
+            variant_conditions = []
+            for _, row in chrom_variants.iterrows():
+                variant_conditions.append(
+                    f"(start = {row['start']} AND ref = '{row['ref']}' AND alt = '{row['alt']}')"
+                )
+            variants_clause = " OR ".join(variant_conditions)
+            
+            chromosome_queries.append(f"""
+            SELECT *
+            FROM abexp a
+            WHERE a.genome = '{genome}' 
+              AND a.chrom = '{chrom}'
+              AND a.tissue IN ({','.join(map(repr, tissues))})
+              AND ({variants_clause})
+            """)
         
-        df = db.execute(f"""
-        SELECT * FROM (
-            SELECT * FROM abexp 
-            WHERE genome = '{genome}' AND 
-                tissue IN ({tissue_list}) AND
-                chrom = '{chr_name}' AND
-                start = {pos - 1} AND
-                ref = '{ref}' AND
-                alt = '{alt}'
-        ) a LEFT JOIN gene_map ON a.gene = gene_map.gene;
-        """).fetchdf()
-        
+        query = f"""
+        SELECT u.*, gm.gene_name
+        FROM (
+            {" UNION ALL ".join(chromosome_queries)}
+        ) u
+        LEFT JOIN gene_map gm ON u.gene = gm.gene
+        """
+        df = db.execute(query).fetchdf()
+
         if df.shape[0] > 0:
             df = df.assign(
-                variant=lambda x: x['chrom'].astype(str) + ':' + (x['start'] + 1).astype(str) + ':' + x['ref'] + '>' + x['alt']
+                variant=lambda x: x['genome'].astype(str) + ':' + x['chrom'].astype(str) + ':' + (x['start'] + 1).astype(str) + ':' + x['ref'] + '>' + x['alt']
             )
-            all_dfs.append(df)
-    
-    if all_dfs:
-        df = pd.concat(all_dfs, ignore_index=True)
-    else:
-        df = pd.DataFrame(columns=['variant', 'gene', 'gene_name', 'tissue', 'abexp_score'])
+        else:
+            df = pd.DataFrame(columns=['variant', 'gene', 'gene_name', 'tissue', 'abexp_score'])
 
     if df.shape[0] != 0:
         if max_score_only:

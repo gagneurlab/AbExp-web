@@ -12,7 +12,9 @@ CHROMOSOMES_TXT_NAME = 'chromosomes.txt'
 
 
 def get_db(read_only=True):
-    db_p = current_app.config['DB_PATH']
+    if not read_only:
+        Path(current_app.config['DB_PATH']).mkdir(parents=True, exist_ok=True)
+    db_p = Path(current_app.config['DB_PATH']) / 'abexp.duckdb'
     if 'db' not in g:
         g.db = duckdb.connect(db_p, read_only=read_only)
 
@@ -78,7 +80,7 @@ def create_abexp_table(db, dataset_base_path, score_column):
     
     db.execute(f"""
     CREATE VIEW IF NOT EXISTS abexp AS 
-    SELECT CAST("genome" AS genome) as genome, CAST("chrom" AS chromosome) as chrom, start, "end", ref, alt, gene, CAST("tissue" AS tissue) as tissue, "{score_column}" AS 'abexp_score'
+    SELECT genome, chrom, start, "end", ref, alt, gene, tissue, "{score_column}" AS 'abexp_score'
     FROM read_parquet('{dataset_base_path / '**/*.parquet'}', hive_partitioning = True);
     """)
     
