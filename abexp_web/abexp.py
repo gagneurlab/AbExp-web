@@ -61,7 +61,7 @@ def run_abexp(snv_input, tissues, genome, max_score_only):
 
         if df.shape[0] > 0:
             df = df.assign(
-                variant=lambda x: x['genome'].astype(str) + ':' + x['chrom'].astype(str) + ':' + (x['start'] + 1).astype(str) + ':' + x['ref'] + '>' + x['alt']
+                variant=lambda x: x['chrom'].astype(str) + ':' + (x['start'] + 1).astype(str) + ':' + x['ref'] + '>' + x['alt']
             )
         else:
             df = pd.DataFrame(columns=['variant', 'gene', 'gene_name', 'tissue', 'abexp_score'])
